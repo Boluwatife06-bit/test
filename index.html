@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 10 | Ajayi Boluwatife - Cybersecurity</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Windows 10 Color Scheme */
+            --win-accent: #0078D7;
+            --win-accent-light: #50E6FF;
+            --win-light: #F2F2F2;
+            --win-dark: #171717;
+            --win-gray: #2D2D2D;
+            --win-gray-light: #3C3C3C;
+            --win-text: #FFFFFF;
+            --win-text-secondary: #CCCCCC;
+            
+            /* Liquid Glass Variables */
+            --glass-light: rgba(255, 255, 255, 0.15);
+            --glass-dark: rgba(30, 30, 30, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-highlight: rgba(255, 255, 255, 0.1);
+            
+            /* System Metrics */
+            --taskbar-height: 40px;
+            --start-width: 400px;
+            --start-height: 500px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #0a0f18;
+            color: var(--win-text);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            position: relative;
+        }
+        
+        /* Matrix Background */
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+        
+        /* AUTHENTIC WINDOWS 10 DESKTOP */
+        .desktop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100% - var(--taskbar-height));
+            background: linear-gradient(rgba(10, 15, 25, 0.7), rgba(10, 15, 25, 0.9));
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 70px);
+            grid-auto-rows: 70px;
+            grid-gap: 15px;
+            align-content: start;
+        }
+        
+        /* Windows 10 Desktop Icons */
+        .desktop-item {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .desktop-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .desktop-item.selected {
+            background: rgba(0, 120, 215, 0.3);
+        }
+        
+        .desktop-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 5px;
+            font-size: 24px;
+            color: var(--win-accent-light);
+        }
+        
+        .desktop-name {
+            font-size: 11px;
+            text-align: center;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            line-height: 1.2;
+            word-break: break-word;
+            width: 100%;
+        }
+        
+        /* WINDOWS 10 LIQUID GLASS WINDOWS */
+        .win10-window {
+            position: absolute;
+            background: var(--glass-dark);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                0 0 0 1px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            min-width: 400px;
+            min-height: 300px;
+            overflow: hidden;
+            z-index: 100;
+        }
+        
+        .win10-window.active {
+            display: flex;
+            animation: windowOpen 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        
+        .win10-window.maximized {
+            width: 100% !important;
+            height: calc(100% - var(--taskbar-height)) !important;
+            top: 0 !important;
+            left: 0 !important;
+            border-radius: 0;
+            border: none;
+        }
+        
+        @keyframes windowOpen {
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        /* WINDOWS 10 TITLE BAR */
+        .win10-titlebar {
+            height: 32px;
+            background: rgba(30, 30, 30, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            cursor: move;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .titlebar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .window-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--win-accent-light);
+        }
+        
+        .window-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--win-text);
+        }
+        
+        /* WINDOWS 10 WINDOW CONTROLS */
+        .win10-controls {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .win10-btn {
+            width: 46px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 10px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .win10-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .win10-btn.close:hover {
+            background: #E81123;
+            color: white;
+        }
+        
+        .win10-btn.minimize:hover::after,
+        .win10-btn.maximize:hover::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 2px;
+            background: currentColor;
+        }
+        
+        .win10-btn.maximize:hover::after {
+            width: 8px;
+            height: 8px;
+            border: 2px solid currentColor;
+            background: transparent;
+        }
+        
+        /* WINDOWS 10 CONTENT AREA */
+        .win10-content {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            background: rgba(15, 15, 15, 0.4);
+        }
+        
+        /* WINDOWS 10 TASKBAR */
+        .win10-taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--taskbar-height);
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            z-index: 1000;
+            box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Windows 10 Start Button */
+        .win10-start {
+            width: 46px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .win10-start:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .start-icon {
+            font-size: 18px;
+            color: white;
+        }
+        
+        /* Windows 10 Taskbar Icons */
+        .taskbar-center {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 100%;
+            margin-left: 10px;
+        }
+        
+        .taskbar-icon {
+            width: 42px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .taskbar-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .taskbar-icon.active {
+            color: var(--win-accent-light);
+        }
+        
+        .taskbar-icon.active::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10px;
+            right: 10px;
+            height: 2px;
+            background: var(--win-accent-light);
+        }
+        
+        /* Windows 10 System Tray */
+        .system-tray {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 100%;
+            padding: 0 10px;
+        }
+        
+        .tray-item {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .tray-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .time-display {
+            font-size: 12px;
+            color: white;
+            padding: 4px 8px;
+        }
+        
+        /* WINDOWS 10 START MENU */
+        .win10-startmenu {
+            position: absolute;
+            bottom: var(--taskbar-height);
+            left: 0;
+            width: var(--start-width);
+            height: var(--start-height);
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+            display: none;
+            overflow: hidden;
+            z-index: 999;
+        }
+        
+        .win10-startmenu.active {
+            display: block;
+            animation: startMenuSlide 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        
+        @keyframes startMenuSlide {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Start Menu Header */
+        .start-header {
+            padding: 20px;
+            background: rgba(0, 120, 215, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--win-accent), var(--win-accent-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: white;
+        }
+        
+        .user-info h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .user-info p {
+            font-size: 12px;
+            color: var(--win-accent-light);
+        }
+        
+        /* Start Menu Apps Grid */
+        .start-grid {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .start-app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .start-app:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .start-app i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--win-accent-light);
+        }
+        
+        .start-app span {
+            font-size: 12px;
+            text-align: center;
+            color: var(--win-text);
+        }
+        
+        /* Windows 10 Scrollbar */
+        .win10-content::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .win10-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .win10-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+        }
+        
+        .win10-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Context Menu (Right-click) */
+        .context-menu {
+            position: absolute;
+            background: rgba(40, 40, 40, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 6px 0;
+            min-width: 200px;
+            display: none;
+            z-index: 2000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .context-item {
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--win-text);
+            transition: background 0.2s;
+        }
+        
+        .context-item:hover {
+            background: rgba(0, 120, 215, 0.3);
+        }
+        
+        .context-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 6px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Background -->
+    <canvas id="matrixCanvas"></canvas>
+    
+    <!-- Windows 10 Desktop -->
+    <div class="desktop" id="desktop">
+        <!-- Desktop Icons -->
+        <div class="desktop-item" data-app="projects">
+            <div class="desktop-icon"><i class="fas fa-folder"></i></div>
+            <div class="desktop-name">Projects</div>
+        </div>
+        <div class="desktop-item" data-app="terminal">
+            <div class="desktop-icon"><i class="fas fa-terminal"></i></div>
+            <div class="desktop-name">Terminal</div>
+        </div>
+        <div class="desktop-item" data-app="browser">
+            <div class="desktop-icon"><i class="fas fa-edge"></i></div>
+            <div class="desktop-name">Microsoft Edge</div>
+        </div>
+        <div class="desktop-item" data-app="explorer">
+            <div class="desktop-icon"><i class="fas fa-folder-open"></i></div>
+            <div class="desktop-name">File Explorer</div>
+        </div>
+        <div class="desktop-item" data-app="settings">
+            <div class="desktop-icon"><i class="fas fa-cog"></i></div>
+            <div class="desktop-name">Settings</div>
+        </div>
+        <div class="desktop-item" data-app="github">
+            <div class="desktop-icon"><i class="fab fa-github"></i></div>
+            <div class="desktop-name">GitHub</div>
+        </div>
+        <div class="desktop-item" data-app="security">
+            <div class="desktop-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="desktop-name">Security Center</div>
+        </div>
+        <div class="desktop-item" data-app="vscode">
+            <div class="desktop-icon"><i class="fas fa-code"></i></div>
+            <div class="desktop-name">VS Code</div>
+        </div>
+    </div>
+    
+    <!-- Windows Container -->
+    <div id="windowContainer"></div>
+    
+    <!-- Windows 10 Taskbar -->
+    <div class="win10-taskbar">
+        <!-- Start Button -->
+        <div class="win10-start" id="win10Start">
+            <i class="fab fa-windows start-icon"></i>
+        </div>
+        
+        <!-- Taskbar Icons -->
+        <div class="taskbar-center">
+            <div class="taskbar-icon" data-app="search">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="taskbar-icon" data-app="explorer">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <div class="taskbar-icon" data-app="edge">
+                <i class="fas fa-edge"></i>
+            </div>
+            <div class="taskbar-icon" data-app="store">
+                <i class="fas fa-store"></i>
+            </div>
+        </div>
+        
+        <!-- System Tray -->
+        <div class="system-tray">
+            <div class="tray-item">
+                <i class="fas fa-chevron-up"></i>
+            </div>
+            <div class="tray-item">
+                <i class="fas fa-network-wired"></i>
+            </div>
+            <div class="tray-item">
+                <i class="fas fa-volume-up"></i>
+            </div>
+            <div class="tray-item">
+                <i class="fas fa-battery-full"></i>
+            </div>
+            <div class="time-display" id="timeDisplay">22:10</div>
+        </div>
+    </div>
+    
+    <!-- Windows 10 Start Menu -->
+    <div class="win10-startmenu" id="win10StartMenu">
+        <!-- Start Menu Header -->
+        <div class="start-header">
+            <div class="user-profile">
+                <div class="user-avatar">AB</div>
+                <div class="user-info">
+                    <h3>Ajayi Boluwatife</h3>
+                    <p>Offensive Security Pentester</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Start Menu Apps Grid -->
+        <div class="start-grid">
+            <div class="start-app" data-app="projects">
+                <i class="fas fa-folder"></i>
+                <span>Projects</span>
+            </div>
+            <div class="start-app" data-app="terminal">
+                <i class="fas fa-terminal"></i>
+                <span>Terminal</span>
+            </div>
+            <div class="start-app" data-app="explorer">
+                <i class="fas fa-folder-open"></i>
+                <span>File Explorer</span>
+            </div>
+            <div class="start-app" data-app="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+            <div class="start-app" data-app="github">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </div>
+            <div class="start-app" data-app="security">
+                <i class="fas fa-shield-alt"></i>
+                <span>Security</span>
+            </div>
+            <div class="start-app" data-app="browser">
+                <i class="fas fa-edge"></i>
+                <span>Edge Browser</span>
+            </div>
+            <div class="start-app" data-app="vscode">
+                <i class="fas fa-code"></i>
+                <span>VS Code</span>
+            </div>
+            <div class="start-app" data-app="power">
+                <i class="fas fa-power-off"></i>
+                <span>Power</span>
+            </div>
+        </div>
+        
+        <!-- Power Options -->
+        <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 32px; height: 32px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user" style="font-size: 14px;"></i>
+                </div>
+                <div style="flex: 1; font-size: 13px; color: var(--win-text-secondary);">
+                    Ajayi Boluwatife<br>
+                    <span style="font-size: 11px;">Pentester</span>
+                </div>
+                <div style="width: 32px; height: 32px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <i class="fas fa-power-off" style="font-size: 14px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-item" data-action="view">
+            <i class="fas fa-eye"></i>
+            <span>View</span>
+        </div>
+        <div class="context-item" data-action="sort">
+            <i class="fas fa-sort"></i>
+            <span>Sort by</span>
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item" data-action="refresh">
+            <i class="fas fa-redo"></i>
+            <span>Refresh</span>
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item" data-action="new">
+            <i class="fas fa-plus"></i>
+            <span>New</span>
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item" data-action="display">
+            <i class="fas fa-desktop"></i>
+            <span>Display settings</span>
+        </div>
+        <div class="context-item" data-action="personalize">
+            <i class="fas fa-palette"></i>
+            <span>Personalize</span>
+        </div>
+    </div>
+    
+    <!-- WINDOW TEMPLATES -->
+    <template id="projectsWindow">
+        <div class="win10-window" data-window-id="">
+            <div class="win10-titlebar">
+                <div class="titlebar-left">
+                    <div class="window-icon"><i class="fas fa-folder"></i></div>
+                    <div class="window-title">Projects - Cybersecurity Portfolio</div>
+                </div>
+                <div class="win10-controls">
+                    <div class="win10-btn minimize"><i class="fas fa-minus"></i></div>
+                    <div class="win10-btn maximize"><i class="fas fa-square"></i></div>
+                    <div class="win10-btn close"><i class="fas fa-times"></i></div>
+                </div>
+            </div>
+            <div class="win10-content">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <div style="width: 40px; height: 40px; background: rgba(0, 120, 215, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-shield-alt" style="color: var(--win-accent-light);"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: white; margin-bottom: 4px;">Cybersecurity Projects</h3>
+                        <p style="color: var(--win-text-secondary); font-size: 13px;">View all security projects and GitHub repositories</p>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                    <!-- Project Card 1 -->
+                    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <div style="width: 32px; height: 32px; background: rgba(0, 255, 100, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-server" style="color: #00ff41;"></i>
+                            </div>
+                            <h4 style="color: white; font-size: 14px;">Ubuntu Server Security</h4>
+                        </div>
+                        <p style="color: var(--win-text-secondary); font-size: 13px; margin-bottom: 15px; line-height: 1.5;">
+                            Built and secured Ubuntu server with firewall rules, SSH hardening, and Fail2Ban protection.
+                        </p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px;">
+                            <span style="background: rgba(0, 255, 100, 0.1); color: #00ff41; padding: 4px 10px; border-radius: 12px; font-size: 11px;">Ubuntu</span>
+                            <span style="background: rgba(0, 255, 100, 0.1); color: #00ff41; padding: 4px 10px; border-radius: 12px; font-size: 11px;">SSH</span>
+                            <span style="background: rgba(0, 255, 100, 0.1); color: #00ff41; padding: 4px 10px; border-radius: 12px; font-size: 11px;">Fail2Ban</span>
+                        </div>
+                        <a href="https://github.com/Boluwatife06-bit/ssh-project" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 120, 215, 0.2); color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-size: 13px; border: 1px solid rgba(0, 120, 215, 0.3);">
+                            <i class="fab fa-github"></i> View on GitHub
+                        </a>
+                    </div>
+                    
+                    <!-- Project Card 2 -->
+                    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <div style="width: 32px; height: 32px; background: rgba(0, 255, 100, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-robot" style="color: #00ff41;"></i>
+                            </div>
+                            <h4 style="color: white; font-size: 14px;">AI Vulnerability Scanner</h4>
+                        </div>
+                        <p style="color: var(--win-text-secondary); font-size: 13px; margin-bottom: 15px; line-height: 1.5;">
+                            ML-powered vulnerability scanner for web applications and network infrastructure.
+                        </p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px;">
+                            <span style="background: rgba(0, 255, 100, 0.1); color: #00ff41; padding: 4px 10px; border-radius: 12px; font-size: 11px;">Python</span>
+                            <span style="background: rgba(0, 255, 100, 0.1); color: #00ff41; padding: 4px 10px; border-radius: 12px; font-size: 11px;">Machine Learning</span>
+                            <span style="background: rgba(0, 255, 100, 0.1); color: #00ff41; padding: 4px 10px; border-radius: 12px; font-size: 11px;">Security</span>
+                        </div>
+                        <a href="https://github.com/Boluwatife06-bit/AI-vuln-scanner" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 120, 215, 0.2); color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-size: 13px; border: 1px solid rgba(0, 120, 215, 0.3);">
+                            <i class="fab fa-github"></i> View on GitHub
+                        </a>
+                    </div>
+                    
+                    <!-- Project Card 3 -->
+                    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <div style="width: 32px; height: 32px; background: rgba(0, 255, 100, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-terminal" style="color: #00ff41;"></i>
+                            </div>
+                            <h4 style="color: white; font-size: 14px;">J.A.R.V.I.S AI Terminal</h4>
+                        </div>
+                        <p style="color: var(--win-text-secondary); font-size: 13px; margin-bottom: 15px; line-height: 1.5;">
+                            AI-powered terminal assistant for Kali Linux with natural language commands.
+                        </p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px;">
+                            <span style="background: rgba(0, 255, 100, 0.1); color: #00ff41; padding: 4px 10px; border-radius: 12px; font-size: 11px;">Kali Linux</span>
+                            <span style="background: rgba(0, 255, 100, 0.1); color: #00ff41; padding: 4px 10px; border-radius: 12px; font-size: 11px;">Python</span>
+                            <span style="background: rgba(0, 255, 100, 0.1); color: #00ff41; padding: 4px 10px; border-radius: 12px; font-size: 11px;">AI</span>
+                        </div>
+                        <a href="https://github.com/Boluwatife06-bit/J.A.R.V.I.S_AI.KALI_TERMINAL" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 120, 215, 0.2); color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-size: 13px; border: 1px solid rgba(0, 120, 215, 0.3);">
+                            <i class="fab fa-github"></i> View on GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="terminalWindow">
+        <div class="win10-window" data-window-id="">
+            <div class="win10-titlebar">
+                <div class="titlebar-left">
+                    <div class="window-icon"><i class="fas fa-terminal"></i></div>
+                    <div class="window-title">Terminal - Kali Linux</div>
+                </div>
+                <div class="win10-controls">
+                    <div class="win10-btn minimize"><i class="fas fa-minus"></i></div>
+                    <div class="win10-btn maximize"><i class="fas fa-square"></i></div>
+                    <div class="win10-btn close"><i class="fas fa-times"></i></div>
+                </div>
+            </div>
+            <div class="win10-content">
+                <div style="background: #0a0f18; border-radius: 6px; padding: 20px; height: 300px; overflow-y: auto; font-family: 'Cascadia Code', 'Consolas', monospace;">
+                    <div style="color: #00ff41; margin-bottom: 10px;">┌──(root㉿kali)-[~]</div>
+                    <div style="color: #00ff41;">└─$ <span style="color: white;">Welcome to Cybersecurity Terminal</span></div>
+                    <div style="color: #666666; margin: 10px 0 15px 0;">──────────────────────────────────────────</div>
+                    <div id="terminalOutput" style="color: #cccccc; line-height: 1.5; margin-bottom: 15px;">
+                        <div>Type 'help' for available commands</div>
+                        <div>Type 'projects' to list all projects</div>
+                        <div>Type 'whoami' for user information</div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span style="color: #00ff41;">└─$ </span>
+                        <input type="text" id="termInput" style="background: transparent; border: none; color: white; font-family: 'Cascadia Code', monospace; font-size: 14px; margin-left: 10px; flex: 1; outline: none;" placeholder="Type command...">
+                    </div>
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: rgba(0, 120, 215, 0.1); border-radius: 6px;">
+                    <div style="display: flex; align-items: center; gap: 10px; color: var(--win-text-secondary); font-size: 12px;">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Available: help, whoami, projects, skills, clear, github, scan, hack</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="browserWindow">
+        <div class="win10-window" data-window-id="">
+            <div class="win10-titlebar">
+                <div class="titlebar-left">
+                    <div class="window-icon"><i class="fas fa-edge"></i></div>
+                    <div class="window-title">Microsoft Edge</div>
+                </div>
+                <div class="win10-controls">
+                    <div class="win10-btn minimize"><i class="fas fa-minus"></i></div>
+                    <div class="win10-btn maximize"><i class="fas fa-square"></i></div>
+                    <div class="win10-btn close"><i class="fas fa-times"></i></div>
+                </div>
+            </div>
+            <div class="win10-content">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; flex: 1; background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 8px 15px; align-items: center; gap: 10px;">
+                        <i class="fas fa-search" style="color: var(--win-text-secondary); font-size: 12px;"></i>
+                        <input type="text" value="https://github.com/Boluwatife06-bit" style="background: transparent; border: none; color: white; flex: 1; font-size: 13px; outline: none;">
+                    </div>
+                    <button style="background: rgba(0, 120, 215, 0.2); border: none; color: white; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 13px;">Go</button>
+                </div>
+                <iframe src="https://github.com/Boluwatife06-bit" style="width: 100%; height: 350px; border: none; border-radius: 6px;"></iframe>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // ==================== MATRIX BACKGROUND ====================
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const matrixChars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        const charArray = matrixChars.split("");
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(10, 15, 25, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00ff41';
+            ctx.font = `${fontSize}px 'Cascadia Code', monospace`;
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 35);
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        // ==================== WINDOWS 10 WINDOW MANAGER ====================
+        class Win10WindowManager {
+            constructor() {
+                this.windows = new Map();
+                this.windowCounter = 0;
+                this.activeWindow = null;
+                this.zIndex = 100;
+                this.initEventListeners();
+                this.updateTime();
+                setInterval(() => this.updateTime(), 60000);
+            }
+            
+            initEventListeners() {
+                // Start Menu Toggle
+                document.getElementById('win10Start').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.getElementById('win10StartMenu').classList.toggle('active');
+                });
+                
+                // Close Start Menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    const startMenu = document.getElementById('win10StartMenu');
+                    const startBtn = document.getElementById('win10Start');
+                    if(!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
+                        startMenu.classList.remove('active');
+                    }
+                });
+                
+                // Desktop icon double-click
+                document.querySelectorAll('.desktop-item').forEach(item => {
+                    item.addEventListener('dblclick', (e) => {
+                        const app = e.currentTarget.getAttribute('data-app');
+                        this.openWindow(app);
+                    });
+                });
+                
+                // Start menu app click
+                document.querySelectorAll('.start-app').forEach(app => {
+                    app.addEventListener('click', (e) => {
+                        const appType = e.currentTarget.getAttribute('data-app');
+                        this.openWindow(appType);
+                        document.getElementById('win10StartMenu').classList.remove('active');
+                    });
+                });
+                
+                // Taskbar icon click
+                document.querySelectorAll('.taskbar-icon').forEach(icon => {
+                    icon.addEventListener('click', (e) => {
+                        const app = e.currentTarget.getAttribute('data-app');
+                        this.openWindow(app);
+                    });
+                });
+                
+                // Context menu
+                document.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    this.showContextMenu(e.clientX, e.clientY);
+                });
+                
+                document.addEventListener('click', () => {
+                    document.getElementById('contextMenu').style.display = 'none';
+                });
+            }
+            
+            updateTime() {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('timeDisplay').textContent = timeStr;
+            }
+            
+            showContextMenu(x, y) {
+                const contextMenu = document.getElementById('contextMenu');
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = `${x}px`;
+                contextMenu.style.top = `${y}px`;
+            }
+            
+            openWindow(appType) {
+                this.windowCounter++;
+                const windowId = `win10_${this.windowCounter}_${appType}`;
+                
+                let template;
+                switch(appType) {
+                    case 'projects':
+                        template = document.getElementById('projectsWindow').innerHTML;
+                        break;
+                    case 'terminal':
+                        template = document.getElementById('terminalWindow').innerHTML;
+                        break;
+                    case 'browser':
+                    case 'edge':
+                        template = document.getElementById('browserWindow').innerHTML;
+                        break;
+                    default:
+                        template = document.getElementById('projectsWindow').innerHTML;
+                }
+                
+                // Create window element
+                const windowEl = document.createElement('div');
+                windowEl.innerHTML = template;
+                const windowContent = windowEl.firstElementChild;
+                windowContent.setAttribute('data-window-id', windowId);
+                windowContent.style.zIndex = this.zIndex++;
+                
+                // Position window (staggered)
+                const offset = (this.windows.size * 30) % 300;
+                windowContent.style.left = `${50 + offset}px`;
+                windowContent.style.top = `${50 + offset}px`;
+                
+                // Add to container
+                document.getElementById('windowContainer').appendChild(windowContent);
+                
+                // Store window
+                this.windows.set(windowId, {
+                    id: windowId,
+                    element: windowContent,
+                    type: appType,
+                    state: 'normal'
+                });
+                
+                // Activate window
+                this.activateWindow(windowId);
+                
+                // Initialize window controls
+                this.initWindowControls(windowContent, windowId);
+                
+                // Initialize terminal if it's a terminal window
+                if(appType === 'terminal') {
+                    this.initTerminal(windowContent);
+                }
+                
+                return windowId;
+            }
+            
+            initWindowControls(windowElement, windowId) {
+                const titlebar = windowElement.querySelector('.win10-titlebar');
+                const minimizeBtn = windowElement.querySelector('.win10-btn.minimize');
+                const maximizeBtn = windowElement.querySelector('.win10-btn.maximize');
+                const closeBtn = windowElement.querySelector('.win10-btn.close');
+                
+                // Make draggable
+                this.makeDraggable(windowElement, titlebar);
+                
+                // Window controls
+                minimizeBtn?.addEventListener('click', () => this.minimizeWindow(windowId));
+                maximizeBtn?.addEventListener('click', () => this.maximizeWindow(windowId));
+                closeBtn?.addEventListener('click', () => this.closeWindow(windowId));
+                
+                // Activate on click
+                windowElement.addEventListener('mousedown', () => this.activateWindow(windowId));
+            }
+            
+            activateWindow(windowId) {
+                // Lower all windows
+                this.windows.forEach(win => {
+                    win.element.style.zIndex = 100;
+                });
+                
+                // Raise active window
+                const window = this.windows.get(windowId);
+                if(window) {
+                    window.element.style.zIndex = this.zIndex++;
+                    this.activeWindow = windowId;
+                }
+            }
+            
+            minimizeWindow(windowId) {
+                const window = this.windows.get(windowId);
+                if(window) {
+                    window.element.style.display = 'none';
+                    window.state = 'minimized';
+                }
+            }
+            
+            maximizeWindow(windowId) {
+                const window = this.windows.get(windowId);
+                if(window) {
+                    if(window.state === 'maximized') {
+                        window.element.classList.remove('maximized');
+                        window.state = 'normal';
+                    } else {
+                        window.element.classList.add('maximized');
+                        window.state = 'maximized';
+                    }
+                }
+            }
+            
+            closeWindow(windowId) {
+                const window = this.windows.get(windowId);
+                if(window) {
+                    window.element.remove();
+                    this.windows.delete(windowId);
+                }
+            }
+            
+            makeDraggable(element, handle) {
+                let isDragging = false;
+                let currentX, currentY, initialX, initialY;
+                
+                handle.addEventListener('mousedown', dragStart);
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', dragEnd);
+                
+                function dragStart(e) {
+                    const window = element.closest('.win10-window');
+                    if(window.classList.contains('maximized')) return;
+                    
+                    initialX = e.clientX - element.offsetLeft;
+                    initialY = e.clientY - element.offsetTop;
+                    
+                    if(e.target === handle || handle.contains(e.target)) {
+                        isDragging = true;
+                        element.style.cursor = 'grabbing';
+                    }
+                }
+                
+                function drag(e) {
+                    if(isDragging) {
+                        e.preventDefault();
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                        
+                        element.style.left = `${currentX}px`;
+                        element.style.top = `${currentY}px`;
+                    }
+                }
+                
+                function dragEnd() {
+                    isDragging = false;
+                    element.style.cursor = '';
+                }
+            }
+            
+            initTerminal(windowElement) {
+                const termInput = windowElement.querySelector('#termInput');
+                const termOutput = windowElement.querySelector('#terminalOutput');
+                
+                if(!termInput || !termOutput) return;
+                
+                termInput.addEventListener('keypress', (e) => {
+                    if(e.key === 'Enter') {
+                        const command = termInput.value.trim().toLowerCase();
+                        termInput.value = '';
+                        
+                        let response = '';
+                        switch(command) {
+                            case 'help':
+                                response = `<div>Available commands:</div>
+                                           <div>• help - Show this help</div>
+                                           <div>• whoami - User information</div>
+                                           <div>• projects - List projects</div>
+                                           <div>• skills - Technical skills</div>
+                                           <div>• clear - Clear terminal</div>
+                                           <div>• github - Open GitHub</div>`;
+                                break;
+                            case 'whoami':
+                                response = `<div>User: ajayi_boluwatife</div>
+                                           <div>Role: Offensive Security Pentester</div>
+                                           <div>Specialization: System Security & Penetration Testing</div>`;
+                                break;
+                            case 'projects':
+                                response = `<div>Cybersecurity Projects:</div>
+                                           <div>1. Ubuntu Server Security</div>
+                                           <div>2. SSH Brute Force Simulation</div>
+                                           <div>3. Web App Penetration Testing</div>
+                                           <div>4. AI Vulnerability Scanner</div>
+                                           <div>5. J.A.R.V.I.S AI Terminal</div>`;
+                                break;
+                            case 'clear':
+                                termOutput.innerHTML = '';
+                                return;
+                            case 'github':
+                                window.open('https://github.com/Boluwatife06-bit', '_blank');
+                                response = 'Opening GitHub profile...';
+                                break;
+                            case '':
+                                return;
+                            default:
+                                response = `Command not found: ${command}. Type 'help' for available commands.`;
+                        }
+                        
+                        termOutput.innerHTML += `<div style="color:#00ff41;">└─$ <span style="color:white;">${command}</span></div>
+                                               <div style="color:#cccccc; margin-bottom:10px;">${response}</div>`;
+                        termOutput.scrollTop = termOutput.scrollHeight;
+                    }
+                });
+            }
+        }
+        
+        // Initialize Windows 10
+        document.addEventListener('DOMContentLoaded', () => {
+            // Create window manager instance
+            const win10 = new Win10WindowManager();
+            window.win10 = win10; // Make accessible globally
+            
+            // Open initial window
+            setTimeout(() => {
+                win10.openWindow('projects');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
